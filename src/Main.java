@@ -1,23 +1,18 @@
 public class Main {
-    public static void main(String[] args){
-        LinkedList list = new LinkedList<>();
-        LinkedList list2 = new LinkedList<>();
+    public static void main(String[] args) {
+        ArrayList list = new ArrayList<>();
+        list.add(4);
         list.add(2);
+        list.add(5);
         list.add(1);
         list.add(3);
-        list.add(4);
-        list.add(5);
-
-
-        list2.add(2);
-        list2.add(1);
-        list2.add(50);
-        list2.add(222);
-        list2.add(2234);
-
+        list.add(6);
+        System.out.println(list);
+        System.out.println(list.checkIfSorted());
         list.sort();
+
         System.out.println(list);
-        list.pairSwap();
-        System.out.println(list);
+        System.out.println(list.checkIfSorted());
+
     }
 }
