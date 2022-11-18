@@ -46,16 +46,28 @@ public class ArrayList<T extends Comparable<T>> implements List<T> {
     public boolean add(T element) {
 
         if (element != null) {
+
             // resizes the array to double its length if array is full
             if (size >= list.length) {
                 resizeArray();
             }
+
             // increments the size variable because we added to the list
             size ++;
             // adds the element to the end of the list
             list[size - 1] = element;
 
-            // returns true if the element was addedto the array
+            // if the list is already sorted, we just need to check if the last element is larger than the next to last
+            // element
+            if(isSorted){
+                if( size < 2 || list[size - 2].compareTo(element) < 0){
+                    isSorted = true;
+                }else { // otherwise we have check the whole array to see if it's sorted
+                    isSorted = checkIfSorted();
+                }
+            }
+
+            // returns true if the element was added to the array
             return true;
         }
         // returns false if the element null
@@ -87,8 +99,31 @@ public class ArrayList<T extends Comparable<T>> implements List<T> {
                 shiftedArray[i] = list[i-1];
             }
 
+
             // reassigns the new array to the original array
             list = shiftedArray;
+
+            // updates isSorted
+            // if the list is already sorted, we can compare the elements at the indexes to the left and right of the added element
+            // have to have account for if the index is the beginning or the end of the list so we don't try and access out of the bounds of the array
+            if (isSorted){
+                // element added to end of list
+               if (index == size - 1){
+                   if (element.compareTo(list[index - 1 ]) < 0){
+                       isSorted = false;
+                   }
+               // element added to beginning of list
+               }else if(index == 0){
+                   if (element.compareTo(list[1]) > 0){
+                       isSorted = false;
+                   }
+                // element added to the middle of the list
+                }else if (element.compareTo(list[index-1]) < 0 || element.compareTo(list[index+1]) > 0){
+                   isSorted = false;
+               }
+            } else{ // if it's not sorted initially we have to check the whole array
+                isSorted = checkIfSorted();
+            }
 
             return true;
         }
@@ -101,32 +136,31 @@ public class ArrayList<T extends Comparable<T>> implements List<T> {
         for(int i = 0; i < size; i++){
             list[i] = null;
         }
+        // update the size of the list
         size = 0;
+        // update isSorted variable
+        isSorted = true;
     }
 
-    /**
-     * Return the element at given index. If index is
-     * out-of-bounds, it will return null.
-     *
-     * @param index index to obtain from the list.
-     * @return the element at the given index.
-     */
-    @Override
+    // returns the element at certain index
+    // returns null if index is invalid
     public T get(int index) {
         if(index >= 0 && index < list.length){
             return list[index];
         }
         return null;
     }
-/**
-     * Return the first index of element in the list. If element
-     * is null or not found in the list, return -1. If isSorted is
-     * true, uses the ordering of the list to increase the efficiency
-     * of the search.
-     */
-    @Override
+
+    // returns the index of the first instance of the element in the array, if it exists
+    // returns -1 otherwise
     public int indexOf(T element) {
-        if (element != null) {
+        if (element != null && !isEmpty()) {
+
+            if(isSorted){
+                if(element.compareTo(list[0]) < 0 || element.compareTo(list[size -1]) > 0){
+                    return -1;
+                }
+            }
             // traverses the array checking if the element at the index is equal to the passed in element
             // if so return the index
             for (int i = 0; i < size; i++) {
@@ -150,6 +184,9 @@ public class ArrayList<T extends Comparable<T>> implements List<T> {
 
     @Override
     public void sort() {
+        if(isSorted){
+            return;
+        }
         if(size < 2){
             return;
         }
@@ -173,64 +210,170 @@ public class ArrayList<T extends Comparable<T>> implements List<T> {
 
         isSorted = true;
     }
-    // 0 1 2 3 4
- /**
-     * Remove whatever is at index 'index' in the list and return
-     * it. If index is out-of-bounds, return null. For the ArrayList,
-     * elements to the right of index should be shifted over to maintain
-     * contiguous storage. Must check to see if the list is sorted after removal
-     * of the element at the given index and updates isSorted accordingly.
-     *
-     * @param index position to remove from the list.
-     * @return the removed element.
-     */
+
+    // removes element at index and returns it if the index is valid
     @Override
     public T remove(int index) {
+
+        // checks if the index is valid
         if (index >= 0 && index < size) {
+
+            // Create a new array of type T that whose size is one smaller to account for the removed element
             T[] shiftedArray = (T[]) new Comparable[ list.length - 1];
+
+            // copies the elements from the original array before the removed element into the new array
             for(int i = 0; i < index; i++){
                 shiftedArray[i] = list[i];
             }
 
+            // copies the elements of the original array behind the removed element into the new array
             for(int i = index + 1; i < size; i++){
                 shiftedArray[i-1] = list[i];
             }
             T removedElement = list[index];
+            // updates the size variable to account for removed element
             size--;
+
+            // reassigns the original to the new array
             list = shiftedArray;
+
+            // if the array was originally sorted, removing an element won't affect if it is still sorted
+            if(!isSorted){
+                // if it wasn't sorted we have to check the whole array to update isSorted
+                isSorted = checkIfSorted();
+            }
+
             return removedElement;
         }
 
         return null;
     }
 
+    // condenses the array to only include instances of the passed in element
     @Override
     public void equalTo(T element) {
+
        if (element != null){
+           int numInstances = 0; // keeps track of the number of times the element has been found in th array
+           int firstEmpty   = 0; // keeps track of the index at which we can put the element if we were to find one in the array
+
+
+
+           // iterates through the array, setting each element to null
+           for (int i = 0; i < size; i++) {
+               if (list[i] != element){
+                   list[i] = null;
+               }else {
+                  // if the  element is found and first empty does not equal the current index, the element at i
+                  // is coppied into the array at the firstEmpty index
+
+                   // my attempt to make algorithm more efficient if the array is already sorted
+                   if(isSorted && list[i+1] != element){
+                       list[firstEmpty] = list[i];
+                       numInstances++;
+                       for(int j = i +1; j < size; j++){
+                           list[j] = null;
+                       }
+                       size = numInstances;
+                       return;
+
+                   }
+                   if(firstEmpty != i) {
+                       list[firstEmpty] = list[i];
+                       list[i] = null;
+                       numInstances++;
+                       firstEmpty++;
+                   }else{
+                       // if first empty equals the current index, element is in the right place
+                       numInstances++;
+                       firstEmpty++;
+                   }
+               }
+           }
+           // the array will always be sorted
+           isSorted = true;
+           size = numInstances;
        }
-
-
-
     }
 
+    // reverses the elements in the array
     @Override
     public void reverse() {
+        T temp;
+        // reversing an array only takes size/2 iterations because you can progressively swap the i and size-1-i elements
+        // of the array
+        for(int i = 0; i < (size)/2; i++){
+            temp = list[i]; // need a temp in order to swap elements in an arrau
+            list[i] = list[size-1-i];
+            list[size-1-i] = temp;
+        }
 
+        // we can't know for sure if the array is not sorted after reverse even if it was sorted beforehand
+        // because an array with values 1 1 1 is still sorted after a reverse
+        isSorted = checkIfSorted();
     }
+
+
 
     @Override
     public void merge(List<T> otherList) {
+        ArrayList<T> other = (ArrayList<T>) otherList;
+        sort();
+        other.sort();
+        T[] mergedArray = (T[]) new Comparable[size + other.size];
+        int arrayIndex = 0;
+        int otherArrayIndex = 0;
+        int totalSize = size + other.size;
+
+        for(int i = 0; i < totalSize; i++){
+            if (list[arrayIndex].compareTo(other.get(otherArrayIndex)) < 0){
+                mergedArray[i] = list[arrayIndex];
+                if( arrayIndex == size -1) {
+                    for(int j = i+1; j < totalSize; j++ ){
+                         mergedArray[j] = other.get(otherArrayIndex);
+                         otherArrayIndex++;
+                    }
+                    list = mergedArray;
+                    size = totalSize;
+                    return;
+                }
+                arrayIndex++;
+            } else {
+                mergedArray[i] = other.get(otherArrayIndex);
+                if( otherArrayIndex == other.size -1) {
+
+                    for(int j = i+1; j < totalSize; j++ ){
+                        mergedArray[j] = list[arrayIndex];
+                        arrayIndex++;
+
+                    }
+                    list = mergedArray;
+                    size = totalSize;
+                    return;
+
+                }
+                otherArrayIndex++;
+            }
+        }
+        isSorted = true;
 
     }
 
     @Override
     public void pairSwap() {
+        T temp;
+        for (int i = 0; i < size - 1; i = i +2){
+            temp = list[i];
+            list[i] = list[i+1];
+            list[i+1] = temp;
+        }
+        // 0 1 2 3
 
     }
 
     @Override
     public boolean isSorted() {
-        return false;
+        return isSorted;
     }
 
     public String toString(){

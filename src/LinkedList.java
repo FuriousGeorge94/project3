@@ -269,11 +269,7 @@ public class LinkedList<T extends Comparable<T>> implements List<T> {
 
         }
         head.setNext(currentElement);
-        if (isSorted) {
-            isSorted = false;
-        }else{
-            isSorted = checkIfSorted();
-        }
+        isSorted = checkIfSorted();
     }
 
     @Override
@@ -337,7 +333,7 @@ public class LinkedList<T extends Comparable<T>> implements List<T> {
 
     @Override
     public void pairSwap() {
-        if (head.getNext() != null && head.getNext().getNext() != null) {
+        if (size() > 1) {
             Node<T> pointer = head.getNext();
             Node<T> trailer = head;
             //h 1 2 3

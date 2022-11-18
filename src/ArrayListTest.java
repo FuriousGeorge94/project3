@@ -471,11 +471,6 @@ public class ArrayListTest {
             }
             list.clear();
 
-//            for (int i = 0; i < 5; i++)
-//                for (int j = 0; j < 5; j++) list.add(sorted[i]);
-//
-//            for (int i = 0; i < 25; i++) list.pairSwap();
-//            assertTrue(list.isSorted());
         }
     }
 }
