@@ -1,17 +1,10 @@
 public class Main {
     public static void main(String[] args) {
         LinkedList list = new LinkedList<>();
-        for(int i = 0; i< 3; i++){
-            for(int j= 0; j < 3; j++){
-               list.add(j);
+        for(int i = 0; i< 10; i++){
+            list.add(i);
             }
-            for(int j= 0; j < 3; j++){
-                list.remove(0);
-            }
-
-        }
-
-
+        list.pairSwap();
 
 
     }

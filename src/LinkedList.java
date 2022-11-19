@@ -13,7 +13,7 @@ public class LinkedList<T extends Comparable<T>> implements List<T> {
         isSorted = true;
     }
 
-    // adds an element to the end of the list
+    // adds an element to the end of the list if the element isn't null
     public boolean add(T element) {
 
         if (element != null) {
@@ -23,11 +23,11 @@ public class LinkedList<T extends Comparable<T>> implements List<T> {
 
             // if list is sorted and not empty, check if the added element is less the last element in the list
             // if it is the list won't be sorted after the add;
-            if (isSorted){
-                if(endNode != head && endNode.getData().compareTo(next.getData()) > 0){
+            if (isSorted) {
+                if (endNode != head && endNode.getData().compareTo(next.getData()) > 0) {
                     isSorted = false;
                 }
-            }else {
+            } else {
                 isSorted = checkIfSorted();
             }
 
@@ -55,30 +55,41 @@ public class LinkedList<T extends Comparable<T>> implements List<T> {
                 currentElement = currentElement.getNext();
             }
 
+            // set the node above the element we stopped on to the next variable of the node we want to add
+            // then sets the next variable of the node we stopped on to the added node, inserting between the two in the list!
             addedNode.setNext(currentElement.getNext());
             currentElement.setNext(addedNode);
             endIndex = endIndex + 1;
 
-            if(isSorted){
-                if(index == 0){
-                    if(addedNode.getData().compareTo(addedNode.getNext().getData()) > 0){
+            // if the list is sorted , compare the nodes in front and behind to tell if list is still sorted;
+            if (isSorted) {
+                if (index == 0) {
+                    if (addedNode.getData().compareTo(addedNode.getNext().getData()) > 0) {
                         isSorted = false;
                     }
-                } else if(addedNode.getData().compareTo(currentElement.getData()) < 0 || addedNode.getData().compareTo(addedNode.getNext().getData()) > 0){
+                    } else if( index == endIndex) {
+                    if (addedNode.getData().compareTo(endNode.getData()) < 0) {
+                        isSorted = false;
+                    }
+                }else
+                if (addedNode.getData().compareTo(currentElement.getData()) < 0 || addedNode.getData().compareTo(addedNode.getNext().getData()) > 0) {
                     isSorted = false;
                 }
+            }else{// otherwise have to check if still sorted
+                isSorted = checkIfSorted();
             }
 
-            if(index == endIndex){
+            // if inserting at the end we have to change the variable tracking the last node in the list
+            if (index == endIndex) {
                 endNode = getEndNode();
             }
 
-            return true;
+            return true;// node was added successfully
         }
-        return false;
+        return false; // node wasn't added
     }
 
-    @Override
+    // resets the list to an empty state
     public void clear() {
         head.setNext(null);
         endNode = head;
@@ -86,10 +97,12 @@ public class LinkedList<T extends Comparable<T>> implements List<T> {
         isSorted = true;
     }
 
-    @Override
+
+    // gets an element at a specific index and returns it
     public T get(int index) {
         Node<T> currentElement;
-        if(head.getNext() != null) {
+        if (head.getNext() != null) {
+
             currentElement = head.getNext();
             if (index <= endIndex && index >= 0) {
                 for (int i = 0; i < index; i++) {
@@ -98,7 +111,7 @@ public class LinkedList<T extends Comparable<T>> implements List<T> {
                 return (T) currentElement.getData();
             }
         }
-            return null;
+        return null;
     }
 
     @Override
@@ -107,8 +120,8 @@ public class LinkedList<T extends Comparable<T>> implements List<T> {
         if (element == null) {
             return -1;
         }
-        if (isSorted){
-            if( endNode.getData() == null || endNode.getData().compareTo(element) < 0 || head.getNext().getData().compareTo(element) > 0){
+        if (isSorted) {
+            if (endNode.getData() == null || endNode.getData().compareTo(element) < 0 || head.getNext().getData().compareTo(element) > 0) {
                 return -1;
             }
         }
@@ -134,7 +147,7 @@ public class LinkedList<T extends Comparable<T>> implements List<T> {
     @Override
     public void sort() {
         // if the size of the list is less than two it's already sorted
-        if(!isSorted) {
+        if (!isSorted) {
             if (size() >= 2) {
                 //pointer and trailer need to rearrange list after a sort
                 // also pointer is used to compare for the sort
@@ -214,7 +227,7 @@ public class LinkedList<T extends Comparable<T>> implements List<T> {
             isSorted = checkIfSorted();
             return null;
         }
-        if(size() ==0 ){
+        if (size() == 0) {
             endNode = head;
         }
         return removedData;
@@ -235,9 +248,9 @@ public class LinkedList<T extends Comparable<T>> implements List<T> {
             for (int i = 0; i < size(); i++) {
                 if (pointer.getData() == element) {
                     updatedEndIndex++;
-                    if(isSorted){
+                    if (isSorted) {
                         head.setNext(pointer);
-                        while(pointer.getNext() != null && pointer.getNext().getData() == element){
+                        while (pointer.getNext() != null && pointer.getNext().getData() == element) {
                             pointer = pointer.getNext();
                             updatedEndIndex++;
                         }
@@ -391,19 +404,19 @@ public class LinkedList<T extends Comparable<T>> implements List<T> {
             pointer = pointer.getNext();
         }
         return listString;
-     }
+    }
 
-     public boolean checkIfSorted(){
+    public boolean checkIfSorted() {
         Node<T> pointer = head;
-        while(pointer.getNext() != null){
+        while (pointer.getNext() != null) {
             pointer = pointer.getNext();
-            if ( pointer.getNext() != null && pointer.getData().compareTo(pointer.getNext().getData()) > 0){
+            if (pointer.getNext() != null && pointer.getData().compareTo(pointer.getNext().getData()) > 0) {
                 return false;
             }
         }
         return true;
-     }
-
     }
+
+}
 
 

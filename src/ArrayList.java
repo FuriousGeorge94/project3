@@ -1,7 +1,6 @@
 public class ArrayList<T extends Comparable<T>> implements List<T> {
     private T[] list;
     private int size = 0;
-
     private boolean isSorted = true;
 
     public ArrayList(){

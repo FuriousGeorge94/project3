@@ -1,0 +1,52 @@
+Method                      ArrayList Runtime    LinkedList Runtime     Explanation
+
+ boolean add(T element)      O(N)                 O(N)              The Arraylist runtime is O(N), where N is the size of the list, because the checkIsorted() iterates N times, array resize iterates
+                                                                    N times.The LinkedList runtime is O(N) because the list has to
+                                                                    be iterated over  N times to check if it's sorted, and there are no nested loops.
+                                                                    The list should be more efficient on average because it doesn't have to resize.
+
+
+ boolean pairSwap()          O(N)                 O(N)              The ArrayList runtime is O(N), where N is the size of the list, because the for loop I use iterates N/2 times, and then another
+                                                                    N times to check if it sorted, and there are no nested loop. The linkedList runtime is 0(N) similarly
+                                                                    because the while loop only iterates N/2 times over the list and the checking the sorting takes another
+                                                                    N iterations. The ArrayList should be more efficient because the array is stored in contiguous memory locations.
+
+
+ merge(List<T> otherList)    O(N)                 O(N)              Both the ArrayList and LinkedList implementations have a runtime of O(N) where N is the size of the original list
+                                                                    plus the size of the list being merged in. This is because each method only has to iterate N times, adding the next
+                                                                    element from the correct list. LinkedList is less efficient because it has way more function calls.
+
+
+reverse()                    O(N)                 O(N)              Both the ArrayList and LinkedList implementations have a runtime of O(N) where N is the size of the list. This
+                                                                    because the ArrayList has to iterate N/2 times for the reverse plus N times to check if the list is sorted,
+                                                                    so O(1.5N) = O(N), and similarly Linked list iterates N times to reverse the list plus N times to check sorting.
+                                                                    ArrayList is more efficient because it has to Iterate N/2 times over the list to reverse instead of N times like
+                                                                    for the LinkedList
+
+
+                                                                    There are no nested loops in these functions so there are no O(N^2) runtimes
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
