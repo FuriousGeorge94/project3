@@ -1,43 +1,55 @@
 public class LinkedList<T extends Comparable<T>> implements List<T> {
 
     private Node<T> head;
-
     private int endIndex;
     private Node<T> endNode;
     boolean isSorted;
 
+    // constructor
     public LinkedList() {
         head = new Node<>(null);
         endNode = head;
         endIndex = -1;
         isSorted = true;
-
     }
 
-    @Override
+    // adds an element to the end of the list
     public boolean add(T element) {
-        endNode = getEndNode();
-        if (endNode.getNext() == null && element != null) {
+
+        if (element != null) {
+
+            // create a node containing the element
             Node<T> next = new Node<>(element);
+
+            // if list is sorted and not empty, check if the added element is less the last element in the list
+            // if it is the list won't be sorted after the add;
             if (isSorted){
                 if(endNode != head && endNode.getData().compareTo(next.getData()) > 0){
                     isSorted = false;
                 }
+            }else {
+                isSorted = checkIfSorted();
             }
+
+            // put the created node at the end of then update the end node variable and the end index variable
             endNode.setNext(next);
             endNode = next;
             endIndex = endIndex + 1;
-            return true;
+            return true;// element successfully added
         }
-
-        return false;
+        return false;// element not added
     }
 
 
-    @Override
+    // adds an element at a specific index of the list
     public boolean add(int index, T element) {
+
+        //create a new node containing the element
         Node<T> addedNode = new Node<>(element);
+
         if (element != null && (index >= 0 && index <= endIndex) && head.getNext() != null) {
+
+            // if element and index are valid creates node equal to head, then traverses up the list to the index
             Node<T> currentElement = head;
             for (int i = 0; i < index; i++) {
                 currentElement = currentElement.getNext();
@@ -202,6 +214,9 @@ public class LinkedList<T extends Comparable<T>> implements List<T> {
             isSorted = checkIfSorted();
             return null;
         }
+        if(size() ==0 ){
+            endNode = head;
+        }
         return removedData;
     }
 
@@ -336,8 +351,6 @@ public class LinkedList<T extends Comparable<T>> implements List<T> {
         if (size() > 1) {
             Node<T> pointer = head.getNext();
             Node<T> trailer = head;
-            //h 1 2 3
-            //h 2 1 3
 
             while (pointer.getNext() != null) {
                 trailer.setNext(pointer.getNext());

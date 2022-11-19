@@ -27,6 +27,7 @@ public class ArrayList<T extends Comparable<T>> implements List<T> {
         return true;
     }
 
+
     // Used to resize an array if added elements surpass its length
     public void resizeArray(){
 
@@ -41,12 +42,12 @@ public class ArrayList<T extends Comparable<T>> implements List<T> {
         // assigns the new array to the variable holding the original array
         list = newList;
     }
+
     @Override
     // adds an element to the end of the list
     public boolean add(T element) {
 
         if (element != null) {
-
             // resizes the array to double its length if array is full
             if (size >= list.length) {
                 resizeArray();
@@ -257,8 +258,6 @@ public class ArrayList<T extends Comparable<T>> implements List<T> {
            int numInstances = 0; // keeps track of the number of times the element has been found in th array
            int firstEmpty   = 0; // keeps track of the index at which we can put the element if we were to find one in the array
 
-
-
            // iterates through the array, setting each element to null
            for (int i = 0; i < size; i++) {
                if (list[i] != element){
@@ -316,59 +315,69 @@ public class ArrayList<T extends Comparable<T>> implements List<T> {
 
 
     @Override
+    // merges two lists together in sorted order
     public void merge(List<T> otherList) {
+        // casts otherList into an ArrayList
         ArrayList<T> other = (ArrayList<T>) otherList;
+
         sort();
         other.sort();
-        T[] mergedArray = (T[]) new Comparable[size + other.size];
+
+        // keeps track of the index of the next item that can be added in each list
+        // incremented after an element was used from that list
         int arrayIndex = 0;
         int otherArrayIndex = 0;
         int totalSize = size + other.size;
 
+        // initiallize a new array with the size of both lists combined
+        T[] mergedArray = (T[]) new Comparable[totalSize];
+
+
+        // iterates a number of times equal to the size of both lists combined
+        // once one array is depleted of elements, we can add the rest of the other arrays elements to the new list
+        // this is because the list is already sorted
         for(int i = 0; i < totalSize; i++){
-            if (list[arrayIndex].compareTo(other.get(otherArrayIndex)) < 0){
+
+            if(arrayIndex == size){ // if the original list is out of items to add, we only add items from the other list
+                mergedArray[i] = other.get(otherArrayIndex);
+                otherArrayIndex++;
+
+            }else if(otherArrayIndex == other.size){ // if the other list is out of items to add, we only add from the original list
                 mergedArray[i] = list[arrayIndex];
-                if( arrayIndex == size -1) {
-                    for(int j = i+1; j < totalSize; j++ ){
-                         mergedArray[j] = other.get(otherArrayIndex);
-                         otherArrayIndex++;
-                    }
-                    list = mergedArray;
-                    size = totalSize;
-                    return;
-                }
+                arrayIndex++;
+
+            } else if (list[arrayIndex].compareTo(other.get(otherArrayIndex)) < 0){ // otherwise we compare the items at the indexes we have been updating
+                // if the next element in the original array is smaller we place it in the new list
+                mergedArray[i] = list[arrayIndex];
                 arrayIndex++;
             } else {
+                // if the next element in the other array is smaller we place it in the new list
                 mergedArray[i] = other.get(otherArrayIndex);
-                if( otherArrayIndex == other.size -1) {
-
-                    for(int j = i+1; j < totalSize; j++ ){
-                        mergedArray[j] = list[arrayIndex];
-                        arrayIndex++;
-
-                    }
-                    list = mergedArray;
-                    size = totalSize;
-                    return;
-
-                }
                 otherArrayIndex++;
+                }
             }
-        }
-        isSorted = true;
 
+        // once the merged list has been completed it's assigned to the list instance variable along with updating the size
+        list = mergedArray;
+        size = totalSize;
+        isSorted = true;
     }
 
     @Override
+    // swaps elements two at a time with each other up the list
     public void pairSwap() {
         T temp;
+        // increases i by two every iteration to skip over the element uou just swapped
         for (int i = 0; i < size - 1; i = i +2){
+            // uses a temp to enable swapping
             temp = list[i];
+
+            // swaps the element at the index and one index higher
             list[i] = list[i+1];
             list[i+1] = temp;
         }
-        // 0 1 2 3
-
+        // updates the isSorted variable
+        isSorted = checkIfSorted();
     }
 
     @Override
@@ -382,7 +391,6 @@ public class ArrayList<T extends Comparable<T>> implements List<T> {
         for(int i = 0; i< list.length; i++){
             listString += list[i] + " ";
         }
-
         return listString;
     }
 
