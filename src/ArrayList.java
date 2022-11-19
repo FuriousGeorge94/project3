@@ -1,8 +1,10 @@
+//Written by George Thompson X500: thom7918
 public class ArrayList<T extends Comparable<T>> implements List<T> {
-    private T[] list;
-    private int size = 0;
+    private T[] list; // the array that represents our list
+    private int size = 0; // size of the array
     private boolean isSorted = true;
 
+    // constructor
     public ArrayList(){
         this.list = (T[]) new Comparable[2];
     }

@@ -1,8 +1,10 @@
+
+//Written by George Thompson X500: thom7918
 public class LinkedList<T extends Comparable<T>> implements List<T> {
 
     private Node<T> head;
-    private int endIndex;
-    private Node<T> endNode;
+    private int endIndex; // index of the last element in the list
+    private Node<T> endNode; // last Node in the listj
     boolean isSorted;
 
     // constructor
@@ -188,66 +190,91 @@ public class LinkedList<T extends Comparable<T>> implements List<T> {
                         pointer = trailer.getNext();
                     }
                 }
-                Node<T> endNode = head.getNext();
-                for (int i = 0; i < size() - 1; i++) {
-                    endNode = endNode.getNext();
-                }
+                // update endNode when done sorting
+                endNode = getEndNode();
                 endNode.setNext(null);
             }
-            endNode = getEndNode();
         }
         isSorted = true;
     }
 
-    // 0 1 2 6 8 9 5 1
-    @Override
+    // removes an element from the list at the given index
     public T remove(int index) {
+
         T removedData;
-        Node<T> trailer = head;
 
         if (index == endIndex) {
             endNode = getEndNode();
         }
 
         if (index >= 0 && index <= endIndex) {
+            // Use a pointer and trailer to keep track of where we are in the list
             Node<T> pointer = head.getNext();
+            Node<T> trailer = head;
+
+            //moves the pointer to the index of the element we want to remove
+            //moves the trailer to the 1 - index of the element we want to remove
             for (int i = 0; i < index; i++) {
                 trailer = pointer;
                 pointer = pointer.getNext();
             }
+
             removedData = pointer.getData();
+
+            // the index is at the end of the list, we simply set the trailer's next value to null
             if (index == endIndex) {
                 trailer.setNext(null);
-            } else {
+            } else { // otherwise we set the trailer to point at what the Node we want to remove is pointing at
+                     // effectively removes the element from the list
                 trailer.setNext(pointer.getNext());
             }
+            // have to decrement endIndex a Node was removed
             endIndex--;
+
             isSorted = checkIfSorted();
         } else {
-            isSorted = checkIfSorted();
-            return null;
+            return null; // index out of bounds
         }
-        if (size() == 0) {
+
+        if (size() == 0) {// if the last element was removed
             endNode = head;
         }
+
         return removedData;
     }
 
-    @Override
+
+
+        // reduces the list to only Nodes that whose data is equal to element
+        // keeps original ordering
     public void equalTo(T element) {
+
+        // pointer and trailer used to keep our place as we traverse through list
         Node<T> pointer = head.getNext();
         Node<T> trailer = head;
-        boolean hasElement = false;
+        boolean hasElement = false;// flag flipped if the element is found in the list
+
+        // if the list is sorted we can check if the element is beteween the first element and last element, and if it is not
+        // the element is not in the list, and we can clear the list and return
         if (isSorted) {
             if (endNode.getData() == null || endNode.getData().compareTo(element) < 0 || head.getNext().getData().compareTo(element) > 0) {
-                head.setNext(null);
+                clear();
+                return;
             }
         }
+
+
         if (element != null) {
-            int updatedEndIndex = -1;
+
+            int updatedEndIndex = -1; // keep a record of how many of element we have found
+
+            // iterate through the array, and if we find the element we add it to the front of the list
             for (int i = 0; i < size(); i++) {
                 if (pointer.getData() == element) {
                     updatedEndIndex++;
+
+                    // if the list is sorted once we hit the first element we can iterate until the first non element,
+                    // then we can set the remove the rest of the list
                     if (isSorted) {
                         head.setNext(pointer);
                         while (pointer.getNext() != null && pointer.getNext().getData() == element) {
@@ -263,11 +290,14 @@ public class LinkedList<T extends Comparable<T>> implements List<T> {
                     trailer.setNext(pointer);
                     trailer = pointer;
                 }
+                // itterate to the next Node if element was not found
                 pointer = pointer.getNext();
             }
-            if (!hasElement) {
-                head.setNext(null);
+
+            if (!hasElement) { // if element isn't found clear the list
+                clear();
             }
+
 
             endIndex = updatedEndIndex;
             endNode = getEndNode();
@@ -278,69 +308,91 @@ public class LinkedList<T extends Comparable<T>> implements List<T> {
 
     @Override
     public void reverse() {
-        Node<T> currentElement = head.getNext(); // 1
-        Node<T> nextElement = currentElement.getNext();// 2
-        Node<T> temp = nextElement.getNext();
 
-        endNode = currentElement;
+        if (size() >2) {
+            // put the first three nodes of the list into variables
+            Node<T> currentElement = head.getNext();
+            Node<T> nextElement = currentElement.getNext();
+            Node<T> temp = nextElement.getNext();
 
-        currentElement.setNext(null);
-        nextElement.setNext(currentElement);
-        currentElement = nextElement;
-        nextElement = temp;
+            // special case at the start because we have to set the first element in the list to null
+            // points the second node at the first node while having what the second node is pointing at originally stored
+            endNode = currentElement;
+            currentElement.setNext(null);
+            nextElement.setNext(currentElement);
+            currentElement = nextElement;
+            nextElement = temp;
 
-        for (int i = 1; i < size() - 1; i++) {
-            temp = nextElement.getNext(); // 3
-            nextElement.setNext(currentElement); // 2, 1
-            currentElement = nextElement; // 2
-            nextElement = temp; // 3
+            // does the same steps until the list is reversed
+            for (int i = 1; i < size() - 1; i++) {
+                temp = nextElement.getNext(); // 3
+                nextElement.setNext(currentElement); // 2, 1
+                currentElement = nextElement; // 2
+                nextElement = temp; // 3
 
+            }
+            // have the head point to the start of the reversed list
+            head.setNext(currentElement);
+            isSorted = checkIfSorted();
+        } else if (size() == 2){// if size is 2 just have to point the head at the second element, the second at the first, and the first at null
+            head.setNext(endNode);
+            endNode.setNext(head.getNext());
+            endNode = head.getNext().getNext();
+            endNode.setNext(null);
         }
-        head.setNext(currentElement);
-        isSorted = checkIfSorted();
     }
 
-    @Override
+    // merges two lists together into one sorted list
     public void merge(List<T> otherList) {
         if (otherList != null) {
+            // create a new LinkedList by typecasting the list passed in
             LinkedList<T> other = (LinkedList<T>) otherList;
+
             sort();
             other.sort();
 
+            // flags to check which list has been iterated through first
             boolean firstListFinished = false;
             boolean otherListFinished = false;
 
+            // need two seperate pointers for the two lists
             Node<T> firstListPointer = head.getNext();
             Node<T> otherListPointer = other.head.getNext();
+            // need to keep track of the element that was added last
             Node<T> lastAddedElement = null;
+            // create a new linked list that we will merge both lists into
             LinkedList<T> newList = new LinkedList<T>();
             Node<T> currentNode = newList.head;
 
 
             for (int i = 0; i < (size() + other.size() - 1); i++) {
-                if (firstListFinished) {
+                if (firstListFinished) {// if the original list finishes, just need to point the current node at the rest of the other list
+                    // effectively appending it on, completing the merged list
                     currentNode.setNext(otherListPointer);
                     head.setNext(newList.head.getNext());
                     endIndex = size() + other.size() - 1;
                     return;
                 }
-                if (otherListFinished) {
+                if (otherListFinished) {// same logic if the list being merged finishes first
                     lastAddedElement.setNext(firstListPointer);
                     head.setNext(newList.head.getNext());
                     endIndex = size() + other.size() - 1;
                     return;
                 }
 
-                if (firstListPointer.getData().compareTo(otherListPointer.getData()) <= 0) {
+                // otherwise compare the data from the pointers in both lists, and add lesser node onto the merged list
+                if (firstListPointer.getData().compareTo(otherListPointer.getData()) <= 0) {// original list has a smaller element
                     newList.add(firstListPointer.getData());
                     currentNode = currentNode.getNext();
+                    // need to check if getNext() is null otherwise there would be a null pointer error
                     if (firstListPointer.getNext() != null) {
                         firstListPointer = firstListPointer.getNext();
-                    } else {
+                    } else {// if it is null the list is finished
                         firstListFinished = true;
                     }
+                    //update last element added to the Node that was addded
                     lastAddedElement = firstListPointer;
-                } else {
+                } else { // samer logic for if the other list has a smaller element
                     newList.add(otherListPointer.getData());
                     currentNode = currentNode.getNext();
                     if (otherListPointer.getNext() != null) {
@@ -351,7 +403,9 @@ public class LinkedList<T extends Comparable<T>> implements List<T> {
                     lastAddedElement = otherListPointer;
                 }
             }
+            // updates the ending index of the list
             endIndex = size() + other.size() - 1;
+            //sets the newly created merged list to the list variable
             head.setNext(newList.head.getNext());
         }
 
@@ -359,17 +413,24 @@ public class LinkedList<T extends Comparable<T>> implements List<T> {
         endNode = getEndNode();
     }
 
-    @Override
+    // swaps every two elements in the list up to the end of the list
+    // if list size is odd it doesn't affect the last element
     public void pairSwap() {
         if (size() > 1) {
+
             Node<T> pointer = head.getNext();
             Node<T> trailer = head;
 
-            while (pointer.getNext() != null) {
+            // set the trailing node to point to what the pointer is pointing at
+            // set the pointer to point at two elements ahead in the list
+            // the element originally in front of pointer to point at pointer
+            // effectively swaps elements
+            while (pointer.getNext() != null) { // loops while the pointer has not reached the end of the list
                 trailer.setNext(pointer.getNext());
                 pointer.setNext(pointer.getNext().getNext());
                 trailer.getNext().setNext(pointer);
                 trailer = pointer;
+                //avoids null pointer issues
                 if (pointer.getNext() != null) {
                     pointer = pointer.getNext();
                 }
@@ -380,6 +441,7 @@ public class LinkedList<T extends Comparable<T>> implements List<T> {
         endNode = getEndNode();
     }
 
+    // traverses the list to find the last node and returns it
     public Node<T> getEndNode() {
         int i = 0;
         endNode = head;
@@ -406,8 +468,11 @@ public class LinkedList<T extends Comparable<T>> implements List<T> {
         return listString;
     }
 
+    // returns true if the list is sorted and false if not
     public boolean checkIfSorted() {
         Node<T> pointer = head;
+        //checks if the node  above the pointer is larger than the pointer
+        // if not returns false, otherwise moves the pointer up the list
         while (pointer.getNext() != null) {
             pointer = pointer.getNext();
             if (pointer.getNext() != null && pointer.getData().compareTo(pointer.getNext().getData()) > 0) {
